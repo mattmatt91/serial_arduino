@@ -1,10 +1,28 @@
-int x;
+#include <ArduinoJson.h>
 void setup() {
- Serial.begin(115200);
- Serial.setTimeout(1);
+  Serial.begin(9600); 
+  while(!Serial) {
+  }
 }
+
 void loop() {
- while (!Serial.available());
- x = Serial.readString().toInt();
- Serial.print(x + 1);
+  int     size_ = 0;
+  String  payload;
+  while ( !Serial.available()  ){}
+  if ( Serial.available() )
+    payload = Serial.readStringUntil( '\n' );
+  StaticJsonDocument<512> doc;
+
+  DeserializationError   error = deserializeJson(doc, payload);
+  if (error) {
+    Serial.println(error.c_str()); 
+    return;
+  }
+  if (doc["operation"] == "sequence") {
+     Serial.println("{\"Success\":\"True\"}");
+  }
+  else {
+      Serial.println("{\"Success\":\"False\"}");
+   }
+  delay(20);
 }
